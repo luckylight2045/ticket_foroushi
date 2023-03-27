@@ -1,10 +1,17 @@
 const db = require("../../db")
 
 const userService = {
-  getUserById: async (id) => {
+  getUserById: async function (id) {
     try {
       const user = await db.user.findUnique({
         where: { id },
+        select: {
+          name: true,
+          email: true,
+          wallet: true,
+          gender: true,
+          meliNumber: true,
+        },
       })
       return user
     } catch (err) {
@@ -40,7 +47,7 @@ const userService = {
       const user = await db.user.create({
         data: {
           name,
-          gender: gender === "man" ? 0 : 1,
+          gender: gender === "male" ? 0 : 1,
           email,
           meliNumber,
           wallet: 0,
@@ -66,14 +73,26 @@ const userService = {
     }
   },
 
-  update: async (id, body) => {
+  update: async (id, gender) => {
     try {
-      const { gender } = body
       const user = await db.user.update({
         where: { id: parseInt(id) },
-        data: { gender: gender },
+        data: { gender: gender === "male" ? 0 : 1 },
       })
       return user.id
+    } catch (err) {
+      console.log(err.message)
+      throw new Error(err.message)
+    }
+  },
+
+  addToWallet: async (user, money) => {
+    try {
+      const newUser = await db.user.update({
+        where: { id: parseInt(user.id) },
+        data: { wallet: user.wallet + money },
+      })
+      return newUser.id
     } catch (err) {
       console.log(err.message)
       throw new Error(err.message)

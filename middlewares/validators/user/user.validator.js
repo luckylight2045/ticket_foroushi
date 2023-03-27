@@ -1,6 +1,6 @@
 const { body, check } = require("express-validator")
-const db = require("../../db")
-const { userService } = require("../../modules").userApp
+const db = require("../../../db")
+const { userService } = require("../../../modules").userApp
 
 exports.createUser = [
   // name, email, gender, meliNumber
@@ -65,3 +65,5 @@ exports.loginUser = [
     }),
   body("password").notEmpty().trim().escape(),
 ]
+
+exports.addMoney = [body("money").notEmpty().isInt()]

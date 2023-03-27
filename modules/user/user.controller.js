@@ -8,6 +8,12 @@ const userController = {
     try {
       const { password, email } = req.body
       const user = await userService.getUserByEmail(email)
+      if (!user) {
+        res.json({
+          error: true,
+          message: "this user doesn't exist",
+        })
+      }
       const validPass = await bcrypt.compare(password, user.password)
       if (!validPass) {
         res.json({
@@ -15,7 +21,7 @@ const userController = {
           message: "this password is not valid",
         })
       }
-      const token = jwt.sign({ email: email }, configs.SECRET_KEY, {
+      const token = jwt.sign({ email: user.email }, configs.SECRET_KEY, {
         expiresIn: configs.EXPIRE_TIME,
       })
       res.json({
@@ -75,7 +81,7 @@ const userController = {
   update: async (req, res, next) => {
     try {
       const { gender } = req.body
-      const { id } = req.params
+      const { id } = req.user
       const userId = await userService.update(id, gender)
       res.end(`user with id:${userId} is successfully updated`)
     } catch (err) {
@@ -88,9 +94,36 @@ const userController = {
 
   delete: async (req, res, next) => {
     try {
-      const { id } = req.params
+      const { id } = req.user
       const userId = await userService.delete(id)
       res.end(`user with id:${userId} is successfully deleted`)
+    } catch (err) {
+      res.json({
+        error: true,
+        message: err.message,
+      })
+    }
+  },
+
+  addToWallet: async (req, res, next) => {
+    try {
+      const { money } = req.body
+      const { id } = req.user
+      const userId = await userService.addToWallet(req.user, money)
+      res.status(200).end(`user with id:${userId} is successfully updated`)
+    } catch (err) {
+      res.json({
+        error: true,
+        messaeg: err.message,
+      })
+    }
+  },
+
+  getUserInfo: async (req, res) => {
+    try {
+      const { id } = req.user
+      const userInfo = await userService.getUserById(id)
+      return res.json(userInfo)
     } catch (err) {
       res.json({
         error: true,

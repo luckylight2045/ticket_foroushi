@@ -10,6 +10,8 @@ exports.tokenAuthentication = async (req, res, next) => {
       message: "token is needed",
     })
   }
+
+  console.log(process.env.EXPIRE_TIME)
   const token = authorization.includes("Bearer")
     ? authorization.split(" ")[1]
     : authorization
