@@ -6,6 +6,7 @@ exports.createUser = [
   // name, email, gender, meliNumber
   body("name").notEmpty().trim().escape(),
   body("gender").isString().notEmpty().trim().escape(),
+  body("phone").isString().notEmpty().trim().escape(),
   body("email")
     .notEmpty()
     .trim()

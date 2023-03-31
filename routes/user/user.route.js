@@ -24,5 +24,6 @@ router.put(
   tokenAuthentication,
   userController.addToWallet
 )
+router.get("/profile", tokenAuthentication, userController.get)
 
 module.exports = router

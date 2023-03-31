@@ -3,21 +3,24 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = "file:./dev.db"
+    provider = "postgresql"
+    url      = env("DB_URL")
 }
 
 model User {
-    id         Int      @id @default(autoincrement())
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-    name       String
-    email      String   @unique
-    wallet     Int
-    gender     Int
-    password   String
-    meliNumber String   @unique
-    ticket     Order[]
+    id                Int      @id @default(autoincrement())
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+    name              String
+    registration_date DateTime
+    phone             String
+    birthday          String?
+    email             String   @unique
+    wallet            Int
+    gender            Int
+    password          String
+    meliNumber        String   @unique
+    ticket            Order[]
 }
 
 model Category {
@@ -33,7 +36,7 @@ model Ticket {
     location    String
     destination String
     quantity    Int
-    price       Int
+    price       Float
     distant     Int?
     departure   DateTime
     Category    Category @relation(fields: [categoryId], references: [id])
@@ -42,13 +45,21 @@ model Ticket {
 }
 
 model Order {
-    id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    seat      String
+    id                Int      @id @default(autoincrement())
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+    seat              String[]
+    status            String
+    total_price       Float
+    count             Int
+    registration_date DateTime
+    User              User     @relation(fields: [userId], references: [id])
+    userId            Int
+    Ticket            Ticket   @relation(fields: [ticketId], references: [id])
+    ticketId          Int
+}
 
-    User     User   @relation(fields: [userId], references: [id])
-    userId   Int
-    Ticket   Ticket @relation(fields: [ticketId], references: [id])
-    ticketId Int
+enum Role {
+    ADMIN
+    USER
 }

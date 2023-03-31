@@ -33,7 +33,7 @@ const orderValidation = {
       const { ticketId } = req.body
       const user = await userService.getUserById(id)
       const ticket = await ticketService.getTicketById(ticketId)
-      if (user.wallet >= ticket.price) {
+      if (user.wallet >= ticket.price * req.order.count) {
         next()
       } else {
         res.json({
@@ -47,19 +47,44 @@ const orderValidation = {
     }
   },
 
+  statusCheck: async (req, res, next) => {
+    try {
+      const order = await orderService.getOrderById(req.order.id)
+      if (order === "reserved") {
+        next()
+      } else
+        return res.json({
+          error: true,
+          message: "this ticket is paid",
+        })
+    } catch (err) {
+      res.json({
+        error: true,
+        message: err.message,
+      })
+    }
+  },
+
   availableSeat: async (req, res, next) => {
     try {
       const { ticketId, seat } = req.body
       const orders = await orderService.getOrderByTicketId(ticketId)
+      let check = false
       orders.forEach((item) => {
-        if (item.seat === seat) {
-          return res.json({
-            error: true,
-            message: "this seat has already been reserved",
-          })
-        }
+        item.seat.forEach((chair) => {
+          if (seat.includes(chair)) {
+            check = true
+          }
+        })
       })
-      next()
+      if (!check) {
+        next()
+      } else {
+        return res.json({
+          error: true,
+          message: "this seat has already been reserved",
+        })
+      }
     } catch (err) {
       res.json({
         error: true,

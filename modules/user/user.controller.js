@@ -37,9 +37,9 @@ const userController = {
 
   get: async (req, res, next) => {
     try {
-      const { id } = req.body
+      const { id } = req.user
       const user = await userService.getUserById(id)
-      res.status(200).end(user)
+      return res.status(200).json(user)
     } catch (err) {
       res.json({
         error: true,
@@ -80,9 +80,8 @@ const userController = {
 
   update: async (req, res, next) => {
     try {
-      const { gender } = req.body
       const { id } = req.user
-      const userId = await userService.update(id, gender)
+      const userId = await userService.update(id, req.body)
       res.end(`user with id:${userId} is successfully updated`)
     } catch (err) {
       res.json({

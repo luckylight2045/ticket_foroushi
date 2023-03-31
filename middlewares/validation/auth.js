@@ -27,3 +27,28 @@ exports.tokenAuthentication = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.tokenTicketAuthentication = async (req, res, next) => {
+  const { x_auth } = req.headers
+  if (!x_auth) {
+    return res.json({
+      error: true,
+      message: "you have to first reserve a ticket",
+    })
+  }
+
+  const token = x_auth.includes("Bearer") ? x_auth.split(" ")[1] : x_auth
+
+  const verifiedToken = jwt.verify(
+    token,
+    "fijaihohief35985fa",
+    (err, order) => {
+      if (err) {
+        next(err)
+      } else {
+        req.order = order
+        next()
+      }
+    }
+  )
+}

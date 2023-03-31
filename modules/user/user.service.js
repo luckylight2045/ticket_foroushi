@@ -11,6 +11,8 @@ const userService = {
           wallet: true,
           gender: true,
           meliNumber: true,
+          phone: true,
+          registration_date: true,
         },
       })
       return user
@@ -34,7 +36,16 @@ const userService = {
 
   getAll: async () => {
     try {
-      return await db.user.findMany()
+      return await db.user.findMany({
+        select: {
+          phone: true,
+          email: true,
+          name: true,
+          wallet: true,
+          gender: true,
+          meliNumber: true,
+        },
+      })
     } catch (err) {
       console.log(err.message)
       throw new Error(err.message)
@@ -43,7 +54,9 @@ const userService = {
 
   create: async (body) => {
     try {
-      const { name, email, gender, meliNumber, password } = body
+      const today = new Date()
+      const { name, email, gender, meliNumber, password, phone, birthday } =
+        body
       const user = await db.user.create({
         data: {
           name,
@@ -52,6 +65,15 @@ const userService = {
           meliNumber,
           wallet: 0,
           password,
+          phone,
+          birthday: birthday !== null ? birthday : null,
+          registration_date: new Date(
+            today.getFullYear() +
+              "-" +
+              (today.getMonth() + 1) +
+              "-" +
+              today.getDate()
+          ),
         },
       })
       return user.id
@@ -73,12 +95,19 @@ const userService = {
     }
   },
 
-  update: async (id, gender) => {
+  update: async (id, body) => {
     try {
+      const { birthday, gender, phone } = body
+      console.log(birthday, gender, phone)
       const user = await db.user.update({
         where: { id: parseInt(id) },
-        data: { gender: gender === "male" ? 0 : 1 },
+        data: {
+          gender: gender && gender === "male" ? 0 : 1,
+          phone: phone && phone,
+          birthday: birthday && birthday,
+        },
       })
+      console.log(user)
       return user.id
     } catch (err) {
       console.log(err.message)
