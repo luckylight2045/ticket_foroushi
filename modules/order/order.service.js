@@ -53,6 +53,17 @@ const orderService = {
       throw new Error(err.message)
     }
   },
+
+  getOrderByTicketId: async (ticketId) => {
+    try {
+      return await db.order.findMany({
+        where: { ticketId },
+      })
+    } catch (err) {
+      console.log(err.message)
+      throw new Error(err.message)
+    }
+  },
 }
 
 module.exports = orderService

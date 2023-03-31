@@ -1,5 +1,6 @@
 const db = require("../../../db")
 const { body, check } = require("express-validator")
+const { orderService } = require("../../../modules").orderApp
 const { ticketService } = require("../../../modules").ticketApp
 const { userService } = require("../../../modules").userApp
 
@@ -45,29 +46,27 @@ const orderValidation = {
       next(err)
     }
   },
+
+  availableSeat: async (req, res, next) => {
+    try {
+      const { ticketId, seat } = req.body
+      const orders = await orderService.getOrderByTicketId(ticketId)
+      orders.forEach((item) => {
+        if (item.seat === seat) {
+          return res.json({
+            error: true,
+            message: "this seat has already been reserved",
+          })
+        }
+      })
+      next()
+    } catch (err) {
+      res.json({
+        error: true,
+        message: err.message,
+      })
+    }
+  },
 }
 
 module.exports = orderValidation
-
-// exports.orderValid = [
-//   body("seat").notEmpty().trim().escape(),
-//   body("ticketId").notEmpty(),
-// ]
-
-// exports.emptySpace = async (req, res, next) => {
-//   try {
-//     const { ticketId } = req.body
-//     const ticket = await ticketService.getTicketById(ticketId)
-//     if (ticket.quantity > 0) {
-//       next()
-//     } else {
-//       res.json({
-//         error: true,
-//         message: "no space!",
-//       })
-//     }
-//   } catch (err) {
-//     console.log(err.message)
-//     next(err)
-//   }
-// }

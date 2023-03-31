@@ -10,6 +10,7 @@ router.post(
   tokenAuthentication,
   orderValidation.emptySpace,
   orderValidation.availableMoney,
+  orderValidation.availableSeat,
   orderValidation.orderValid,
   checkError,
   orderController.makeOrder
