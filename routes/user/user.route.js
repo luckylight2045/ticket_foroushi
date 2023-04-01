@@ -10,13 +10,13 @@ const {
   loginUser,
 } = require("../../middlewares/validators/user/user.validator")
 const { addMoney } = require("../../middlewares/validators/user/user.validator")
+const { orderController } = require("../../modules/order")
 
 router.get("/all", tokenAuthentication, userController.getAll)
 router.post("/login", loginUser, checkError, userController.login)
 router.post("/add", createUser, checkError, userController.create)
 router.delete("/remove", tokenAuthentication, userController.delete)
 router.put("/update", tokenAuthentication, userController.update)
-router.get("/info", tokenAuthentication, userController.getUserInfo)
 router.put(
   "/wallet",
   addMoney,
@@ -25,5 +25,11 @@ router.put(
   userController.addToWallet
 )
 router.get("/profile", tokenAuthentication, userController.get)
+router.get(
+  "/orders",
+  orderController.checkOrder,
+  tokenAuthentication,
+  userController.getAllOrders
+)
 
 module.exports = router

@@ -127,6 +127,30 @@ const userService = {
       throw new Error(err.message)
     }
   },
+
+  getAllOrders: async (userId) => {
+    try {
+      return await db.order.findMany({
+        where: { userId },
+        select: {
+          total_price: true,
+          status: true,
+          seat: true,
+          registration_date: true,
+          Ticket: {
+            select: {
+              price: true,
+              location: true,
+              destination: true,
+            },
+          },
+        },
+      })
+    } catch (err) {
+      console.log(err.message)
+      throw new Error(err.message)
+    }
+  },
 }
 
 module.exports = userService

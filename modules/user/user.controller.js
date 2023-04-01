@@ -130,6 +130,19 @@ const userController = {
       })
     }
   },
+
+  getAllOrders: async (req, res, next) => {
+    try {
+      const { id } = req.user
+      const allOrders = await userService.getAllOrders(id)
+      return res.json(allOrders)
+    } catch (err) {
+      res.json({
+        error: true,
+        message: err.message,
+      })
+    }
+  },
 }
 
 module.exports = userController

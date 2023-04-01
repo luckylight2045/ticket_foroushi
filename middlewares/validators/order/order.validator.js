@@ -6,7 +6,7 @@ const { userService } = require("../../../modules").userApp
 
 const orderValidation = {
   orderValid: [
-    body("seat").notEmpty().trim().escape(),
+    body("seat").isArray().notEmpty().trim().escape(),
     body("ticketId").notEmpty(),
   ],
   emptySpace: async (req, res, next) => {
@@ -29,10 +29,13 @@ const orderValidation = {
 
   availableMoney: async (req, res, next) => {
     try {
+      console.log("available money")
       const { id } = req.user
       const { ticketId } = req.body
       const user = await userService.getUserById(id)
       const ticket = await ticketService.getTicketById(ticketId)
+      console.log(req.order)
+      console.log(user.wallet, ticket.price, req.order.count)
       if (user.wallet >= ticket.price * req.order.count) {
         next()
       } else {
@@ -49,8 +52,8 @@ const orderValidation = {
 
   statusCheck: async (req, res, next) => {
     try {
-      const order = await orderService.getOrderById(req.order.id)
-      if (order === "reserved") {
+      console.log("statusCheck")
+      if (req.order.status === "reserved") {
         next()
       } else
         return res.json({
@@ -68,6 +71,7 @@ const orderValidation = {
   availableSeat: async (req, res, next) => {
     try {
       const { ticketId, seat } = req.body
+      console.log(seat)
       const orders = await orderService.getOrderByTicketId(ticketId)
       let check = false
       orders.forEach((item) => {
@@ -78,6 +82,7 @@ const orderValidation = {
         })
       })
       if (!check) {
+        console.log(seat)
         next()
       } else {
         return res.json({

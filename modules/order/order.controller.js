@@ -1,8 +1,6 @@
 const orderService = require("./order.service")
 const { ticketService } = require("../../modules").ticketApp
-const jwt = require("jsonwebtoken")
 require("dotenv").config()
-const configs = require("../../configs")
 
 const orderController = {
   getAllOrders: async (req, res) => {
@@ -20,6 +18,7 @@ const orderController = {
 
   makeOrder: async (req, res) => {
     try {
+      console.log("life is so nice")
       const { ticketId } = req.body
       const ticket = await ticketService.getTicketById(ticketId)
       await orderService.makeOrder(req.body, req.user, ticket, req.order)
@@ -35,22 +34,67 @@ const orderController = {
   reserveTicket: async (req, res, next) => {
     try {
       console.log("hello everyone")
-      const { ticketId } = req.body
+      const { ticketId, seat } = req.body
+      console.log("req.body", req.body)
       const ticket = await ticketService.getTicketById(ticketId)
       const order = await orderService.reserveTicket(
         req.body,
         req.user.id,
         ticket
       )
-      const token = jwt.sign(ticket, "fijaihohief35985fa", {
-        expiresIn: "2h",
-      })
       console.log(order)
       return res.json({
-        access_token: token,
+        access_token: order[2],
       })
     } catch (err) {
       return res.json({
+        error: true,
+        message: err.message,
+      })
+    }
+  },
+
+  cancelTicket: async (req, res, next) => {
+    try {
+      let date = new Date()
+      date = date.getTime()
+      const { id, ticketId } = req.body
+      const ticket = await ticketService.getTicketById(ticketId)
+      const order = await orderService.getOrderById(id)
+      let time = new Date(order.registration_date)
+      time = time.setDate(time.getDate())
+
+      if (date < time) {
+        await orderService.cancelTicket(id, req.user, ticket, order)
+        return res.status(200).end("this ticket is successfully cancelled")
+      }
+      return res.end("this ticket can not be cancelled anymore")
+    } catch (err) {
+      return res.json({
+        error: true,
+        message: err.message,
+      })
+    }
+  },
+
+  checkOrder: async (req, res, next) => {
+    try {
+      console.log("hello checkorder")
+      let date = new Date()
+      let newDate = date.getTime()
+      const orders = await orderService.getOrders()
+      let later, time
+      orders.forEach(async (order, index) => {
+        time = new Date(order.registration_date)
+        later = time.setHours(time.getHours() + 2)
+        if (newDate > later && order.status === "reserved") {
+          let ticket = await ticketService.getTicketById(order.ticketId)
+          await orderService.deleteOrderById(order, ticket)
+        }
+      })
+      next()
+    } catch (err) {
+      res.json({
         error: true,
         message: err.message,
       })

@@ -7,24 +7,41 @@ const checkError = require("../../middlewares/validators/validator")
 const {
   tokenTicketAuthentication,
 } = require("../../middlewares/validation/auth")
+console.log("hello order")
 
 router.post(
   "/reserve",
+  orderController.checkOrder,
   tokenAuthentication,
   orderValidation.emptySpace,
   orderValidation.availableSeat,
-  orderValidation.orderValid,
-  checkError,
+  // orderValidation.orderValid,
+  // checkError,
   orderController.reserveTicket
 )
+
 router.post(
   "/",
+  orderController.checkOrder,
   tokenAuthentication,
   tokenTicketAuthentication,
   orderValidation.availableMoney,
   orderValidation.statusCheck,
   orderController.makeOrder
 )
-router.get("/all", tokenAuthentication, orderController.getAllOrders)
+
+router.get(
+  "/cancel",
+  orderController.checkOrder,
+  tokenAuthentication,
+  orderController.cancelTicket
+)
+
+router.get(
+  "/all",
+  orderController.checkOrder,
+  tokenAuthentication,
+  orderController.getAllOrders
+)
 
 module.exports = router
