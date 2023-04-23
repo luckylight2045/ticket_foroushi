@@ -24,8 +24,22 @@ const userController = {
       const token = jwt.sign({ email: user.email }, configs.SECRET_KEY, {
         expiresIn: configs.EXPIRE_TIME,
       })
-      res.json({
+
+      const newRefreshToken = jwt.sign(
+        { email: user.email },
+        configs.SECRET_KEY,
+        {
+          expiresIn: "7d",
+        }
+      )
+
+      const refreshToken = await userService.addRefreshToken(
+        newRefreshToken,
+        user
+      )
+      return res.json({
         access_token: token,
+        refresh_token: newRefreshToken,
       })
     } catch (err) {
       res.json({
@@ -136,6 +150,27 @@ const userController = {
       const { id } = req.user
       const allOrders = await userService.getAllOrders(id)
       return res.json(allOrders)
+    } catch (err) {
+      res.json({
+        error: true,
+        message: err.message,
+      })
+    }
+  },
+
+  logout: async (req, res) => {
+    try {
+      const { email } = req.body
+      const user = await userService.getUserByEmail(email)
+
+      if (!user) {
+        return res.json({
+          error: true,
+          message: "this user doesn't exist",
+        })
+      }
+      await userService.deletRefreshToken(user.id)
+      return res.end("refresh token is deleted")
     } catch (err) {
       res.json({
         error: true,

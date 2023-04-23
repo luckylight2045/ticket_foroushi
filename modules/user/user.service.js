@@ -1,4 +1,5 @@
 const db = require("../../db")
+const configs = require("../../configs")
 
 const userService = {
   getUserById: async function (id) {
@@ -145,6 +146,44 @@ const userService = {
             },
           },
         },
+      })
+    } catch (err) {
+      console.log(err.message)
+      throw new Error(err.message)
+    }
+  },
+
+  addRefreshToken: async (token, user) => {
+    try {
+      const date = new Date()
+      return await db.refreshToken.create({
+        data: {
+          token,
+          userId: user.id,
+          expireTime: new Date(date.setDate(date.getDate() + 7)),
+        },
+      })
+    } catch (err) {
+      console.log(err.message)
+      throw new Error(err.message)
+    }
+  },
+
+  getRefreshTokenById: async (userId) => {
+    try {
+      return await db.refreshToken.findUnique({
+        where: { userId },
+      })
+    } catch (err) {
+      console.log(err.message)
+      throw new Error(err.message)
+    }
+  },
+
+  deletRefreshToken: async (userId) => {
+    try {
+      await db.refreshToken.delete({
+        where: { userId },
       })
     } catch (err) {
       console.log(err.message)

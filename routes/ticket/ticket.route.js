@@ -1,5 +1,4 @@
-const express = require("express")
-const router = express.Router()
+const router = require("../express.route.js")
 const { ticketController } = require("../../modules").ticketApp
 const ticketCheck = require("../../middlewares/validators/ticket/ticket.validator")
 const checkError = require("../../middlewares/validators/validator")

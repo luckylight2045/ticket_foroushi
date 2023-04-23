@@ -1,5 +1,4 @@
-const express = require("express")
-const router = express.Router()
+const router = require("../express.route")
 const { userController } = require("../../modules").userApp
 const {
   createUser,
@@ -31,5 +30,7 @@ router.get(
   tokenAuthentication,
   userController.getAllOrders
 )
+
+router.get("/refreshToken")
 
 module.exports = router

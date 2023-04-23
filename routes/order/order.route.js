@@ -1,5 +1,4 @@
-const express = require("express")
-const router = express.Router()
+const router = require("../express.route")
 const { orderController } = require("../../modules").orderApp
 const { tokenAuthentication } = require("../../middlewares/validation/auth")
 const orderValidation = require("../../middlewares/validators/order/order.validator")

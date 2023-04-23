@@ -2,11 +2,15 @@ const express = require("express")
 const router = require("../routes")
 const configs = require("../configs")
 const { order } = require("../db")
+const helmet = require("helmet")
+const cors = require("cors")
 class ExpressLoader {
   constructor() {
     this.app = express()
     this.app.use(express.json())
 
+    this.app.use(helmet())
+    this.app.use(cors())
     router(this.app)
 
     this.app.use((err, req, res, next) => {
