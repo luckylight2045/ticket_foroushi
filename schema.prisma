@@ -20,6 +20,7 @@ model User {
     gender            Int
     password          String
     meliNumber        String        @unique
+    role              Role          @default(USER)
     ticket            Order[]
     refreshToken      RefreshToken?
 }
